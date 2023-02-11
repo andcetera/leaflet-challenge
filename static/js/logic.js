@@ -17,13 +17,13 @@ function createMap(eqs) {
     };
 
     var myMap = L.map("map", {
-        center: [37.09, -95.71],
-        zoom: 5,
+        center: [0, 0],
+        zoom: 3,
         layers: [base, eqs]
     });
 
     L.control.layers(baseMaps, overlayMaps, {
-        collapsed: true
+        collapsed: false
     }).addTo(myMap);
 };
 
@@ -37,11 +37,18 @@ function createMarkers(response) {
         var quake = quakes[index]
 
         var quakemark = L.marker([quake.geometry.coordinates[1], quake.geometry.coordinates[0]])
-        .bindPopup('hi');
+        .bindPopup(`${quake.geometry.coordinates[2]}`);
 
-        quakeMarkers.push(quakemark);
+        var quakeMarker = L.circle([quake.geometry.coordinates[1], quake.geometry.coordinates[0]], {
+            color: 'white',
+            fillColor: `rgb(${quake.geometry.coordinates[2]}, 0, 0)`,
+            fillOpacity: 0.5,
+            radius: quake.properties.mag * 50000
+        }).bindPopup(`${quake.geometry.coordinates[2]}`);
+
+        quakeMarkers.push(quakeMarker);
     }
-    console.log(quakeMarkers);
+    console.log(quakemark);
     createMap(L.layerGroup(quakeMarkers));
 }
 
