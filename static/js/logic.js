@@ -10,7 +10,7 @@ function createMap(eqs) {
 
     var baseMaps = {
         "Base Map": base,
-        "Topographical Map": topo
+        "<span style='color: green'>Topographical Map</span>": topo
     };
 
     var overlayMaps = {
@@ -26,6 +26,21 @@ function createMap(eqs) {
     L.control.layers(baseMaps, overlayMaps).addTo(myMap);
 };
 
+function getColor(d){
+    
+    if (d > 500){
+        return 'red';
+    } else if (d > 200){
+        return 'orange'
+    } else if(d > 100) {
+        return 'yellow'
+    } else if (d > 50) {
+        return 'green'
+    } else {
+        return 'teal'
+    }
+}
+
 
 function createMarkers(response) {
 
@@ -34,26 +49,27 @@ function createMarkers(response) {
 
     for (var index = 0; index < quakes.length; index++) {
         var quake = quakes[index];
-        var color = 255-parseInt(quake.geometry.coordinates[2]);
         var date = new Date(quake.properties.time);
         var magnitude = quake.properties.mag;
         var location = [quake.geometry.coordinates[1], quake.geometry.coordinates[0]];
         var place = quake.properties.place;
-        var depth = quake.geometry.coordinates[2];
+        var depth = depth = quake.geometry.coordinates[2];
 
         var marker = L.circle(location, {
-            color: 'rgba(255,255,255, 0.2)',
-            fillColor: `rgb(${color/3}, ${color/4}, ${color/2})`,
+            color: 'black',
+            weight: 1,
+            fillColor: getColor(depth),
             fillOpacity: 0.6,
             radius: Math.sqrt(magnitude) * 100_000
         }).bindPopup(`<h2>${place}</h2><h3>Magnitude: ${magnitude} - Depth: ${depth}</h3><hr><p>${date}</p>`);
 
         markers.push(marker);
     }
-
     createMap(L.layerGroup(markers));
 }
 
 var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson';
 
-d3.json(url).then(createMarkers);
+d3.json(url).then(function(data){
+    createMarkers(data);
+});
