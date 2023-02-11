@@ -1,4 +1,5 @@
 function createMap(eqs) {
+
     var base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
@@ -8,7 +9,7 @@ function createMap(eqs) {
     });
 
     var baseMaps = {
-        "Base Map": baseMaps,
+        "Base Map": base,
         "Topographical Map": topo
     };
 
@@ -22,37 +23,37 @@ function createMap(eqs) {
         layers: [base, eqs]
     });
 
-    L.control.layers(baseMaps, overlayMaps, {
-        collapsed: false
-    }).addTo(myMap);
+    L.control.layers(baseMaps, overlayMaps).addTo(myMap);
 };
 
 
 function createMarkers(response) {
 
     var quakes = response.features;
-    var quakeMarkers = [];
+    var markers = [];
 
     for (var index = 0; index < quakes.length; index++) {
-        var quake = quakes[index]
-        var c = 255-parseInt(quake.geometry.coordinates[2])
+        var quake = quakes[index];
+        var color = 255-parseInt(quake.geometry.coordinates[2]);
+        var date = new Date(quake.properties.time);
+        var magnitude = quake.properties.mag;
+        var location = [quake.geometry.coordinates[1], quake.geometry.coordinates[0]];
+        var place = quake.properties.place;
+        var depth = quake.geometry.coordinates[2];
 
-        var quakeMarker = L.circle([quake.geometry.coordinates[1], quake.geometry.coordinates[0]], {
+        var marker = L.circle(location, {
             color: 'rgba(255,255,255, 0.2)',
-            fillColor: `rgb(${c/3}, ${c/4}, ${c/2})`,
+            fillColor: `rgb(${color/3}, ${color/4}, ${color/2})`,
             fillOpacity: 0.6,
-            radius: Math.sqrt(quake.properties.mag) * 100_000
-        }).bindPopup(`${quake.geometry.coordinates[2]}`);
+            radius: Math.sqrt(magnitude) * 100_000
+        }).bindPopup(`<h2>${place}</h2><h3>Magnitude: ${magnitude} - Depth: ${depth}</h3><hr><p>${date}</p>`);
 
-        quakeMarkers.push(quakeMarker);
+        markers.push(marker);
     }
 
-    createMap(L.layerGroup(quakeMarkers));
+    createMap(L.layerGroup(markers));
 }
 
 var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson';
 
-d3.json(url).then(function(data){
-    console.log(data);
-    createMarkers(data);
-});
+d3.json(url).then(createMarkers);
