@@ -80,18 +80,18 @@ function getColor(depth){
 // Define function to create markers based on JSON response object
 function createMarkers(response) {
 
-    
+    // Define function to draw circle markers
     function ptToLayer(feature, latlng) {
         return L.circleMarker(latlng, {
             color: 'black',
             weight: 1,
             fillColor: getColor(feature.geometry.coordinates[2]),
             fillOpacity: 0.6,
-            radius: feature.properties.mag * 3
+            radius: feature.properties.mag ** 1.5
         });
     };
 
-
+    // Define function to attach popup message
     function onEach(feature, layer) {
         layer.bindPopup(`<h2>${feature.properties.place}</h2><h3>
             Magnitude: ${feature.properties.mag} - 
@@ -100,13 +100,13 @@ function createMarkers(response) {
         ptToLayer(feature, [feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
     };
 
-
+    // Create geoJSON layer
     var gJsonLayer = L.geoJSON(response.features, {
         onEachFeature: onEach,
         pointToLayer: ptToLayer
     });
 
-
+    // Create map with geoJSON layer
     createMap(gJsonLayer);
 
 };
