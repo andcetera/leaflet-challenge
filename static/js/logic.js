@@ -17,7 +17,7 @@ function createMap(eqs) {
     };
 
     var myMap = L.map("map", {
-        center: [0, 0],
+        center: [0, 30],
         zoom: 3,
         layers: [base, eqs]
     });
@@ -35,24 +35,22 @@ function createMarkers(response) {
 
     for (var index = 0; index < quakes.length; index++) {
         var quake = quakes[index]
-
-        var quakemark = L.marker([quake.geometry.coordinates[1], quake.geometry.coordinates[0]])
-        .bindPopup(`${quake.geometry.coordinates[2]}`);
+        var c = 255-parseInt(quake.geometry.coordinates[2])
 
         var quakeMarker = L.circle([quake.geometry.coordinates[1], quake.geometry.coordinates[0]], {
-            color: 'rgba(255,255,255, 0.1)',
-            fillColor: `rgb(${quake.geometry.coordinates[2]}, 0, 0)`,
+            color: 'rgba(255,255,255, 0.2)',
+            fillColor: `rgb(${c/3}, ${c/4}, ${c/2})`,
             fillOpacity: 0.6,
-            radius: quake.properties.mag * 50000
+            radius: Math.sqrt(quake.properties.mag) * 100_000
         }).bindPopup(`${quake.geometry.coordinates[2]}`);
 
         quakeMarkers.push(quakeMarker);
     }
-    console.log(quakemark);
+
     createMap(L.layerGroup(quakeMarkers));
 }
 
-var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
+var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson';
 
 d3.json(url).then(function(data){
     console.log(data);
