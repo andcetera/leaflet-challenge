@@ -1,45 +1,53 @@
-function createMap(quakes) {
-    var basemap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+function createMap(eqs) {
+    var base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
 
+    var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+    });
+
     var baseMaps = {
-        "Base Map": basemap
+        "Base Map": baseMaps,
+        "Topographical Map": topo
     };
 
     var overlayMaps = {
-        "Earthquakes": quakes
+        "Earthquakes": eqs
     };
 
     var myMap = L.map("map", {
-        center: [38, -96],
+        center: [37.09, -95.71],
         zoom: 5,
-        layers: [baseMaps, overlayMaps]
+        layers: [base, eqs]
     });
-    
-}
 
-function createMarkers(data) {
+    L.control.layers(baseMaps, overlayMaps, {
+        collapsed: true
+    }).addTo(myMap);
+};
 
-    var quakes = data.features;
+
+function createMarkers(response) {
+
+    var quakes = response.features;
     var quakeMarkers = [];
 
-    for (index = 0; index < quakes.length; index++) {
+    for (var index = 0; index < quakes.length; index++) {
         var quake = quakes[index]
-        
-        var quakemark = L.marker([quake.geometry.coordinates[1], quake.geometry.coordinates[0]]).bindPopup('hi');
-        var quakeMarker = L.circle([quake.geometry.coordinates[1], quake.geometry.coordinates[0]], {
-            color: 'white',
-            fillColor: quake.properties.mag,
-            fillOpacity: 0.5,
-            radius: Math.sqrt(quake.geometry.coordinates[2])
-        }).bindPopup('hi');
+
+        var quakemark = L.marker([quake.geometry.coordinates[1], quake.geometry.coordinates[0]])
+        .bindPopup('hi');
 
         quakeMarkers.push(quakemark);
     }
+    console.log(quakeMarkers);
     createMap(L.layerGroup(quakeMarkers));
 }
 
 var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson';
 
-d3.json(url).then(createMarkers);
+d3.json(url).then(function(data){
+    console.log(data);
+    createMarkers(data);
+});
