@@ -40,9 +40,9 @@ function createMarkers(response) {
         .bindPopup(`${quake.geometry.coordinates[2]}`);
 
         var quakeMarker = L.circle([quake.geometry.coordinates[1], quake.geometry.coordinates[0]], {
-            color: 'white',
+            color: 'rgba(255,255,255, 0.1)',
             fillColor: `rgb(${quake.geometry.coordinates[2]}, 0, 0)`,
-            fillOpacity: 0.5,
+            fillOpacity: 0.6,
             radius: quake.properties.mag * 50000
         }).bindPopup(`${quake.geometry.coordinates[2]}`);
 
@@ -52,7 +52,7 @@ function createMarkers(response) {
     createMap(L.layerGroup(quakeMarkers));
 }
 
-var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson';
+var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
 
 d3.json(url).then(function(data){
     console.log(data);
