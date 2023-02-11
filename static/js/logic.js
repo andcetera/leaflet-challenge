@@ -80,38 +80,35 @@ function getColor(depth){
 // Define function to create markers based on JSON response object
 function createMarkers(response) {
 
-    // Save response object to a variable
-    var quakes = response.features;
-
-    // Save an empty array to push completed markers to
-    var markers = [];
-
-    // Iterate through response objects to create markers
-    for (var i = 0; i < quakes.length; i++) {
-
-        // Variables for each item in the features we are interested in
-        var quake = quakes[i];
-        var date = new Date(quake.properties.time);
-        var magnitude = quake.properties.mag;
-        var location = [quake.geometry.coordinates[1], quake.geometry.coordinates[0]];
-        var place = quake.properties.place;
-        var depth = depth = quake.geometry.coordinates[2];
-
-        // Create marker
-        var marker = L.circle(location, {
+    
+    function ptToLayer(feature, latlng) {
+        return L.circleMarker(latlng, {
             color: 'black',
             weight: 1,
-            fillColor: getColor(depth),
+            fillColor: getColor(feature.geometry.coordinates[2]),
             fillOpacity: 0.6,
-            radius: magnitude * 50_000
-        }).bindPopup(`<h2>${place}</h2><h3>Magnitude: ${magnitude} - Depth: ${depth}km</h3><hr><p>${date}</p>`);
+            radius: feature.properties.mag * 3
+        });
+    };
 
-        // Push marker to array
-        markers.push(marker);
-    }
 
-    // Create marker layer & pass it to the createMap function
-    createMap(L.layerGroup(markers));
+    function onEach(feature, layer) {
+        layer.bindPopup(`<h2>${feature.properties.place}</h2><h3>
+            Magnitude: ${feature.properties.mag} - 
+            Depth: ${feature.geometry.coordinates[2]}km</h3><hr>
+            <p>${new Date(feature.properties.time)}</p>`);
+        ptToLayer(feature, [feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
+    };
+
+
+    var gJsonLayer = L.geoJSON(response.features, {
+        onEachFeature: onEach,
+        pointToLayer: ptToLayer
+    });
+
+
+    createMap(gJsonLayer);
+
 };
 
 // URL to get Earthquake data from USGS.gov site
