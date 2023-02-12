@@ -1,5 +1,5 @@
 // Define function to create map layers and display them
-function createMap(eqs) {
+function createMap(eqs, plates) {
 
     // Base map layer
     var base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -17,9 +17,13 @@ function createMap(eqs) {
         "<span style='color: green'>Topographical Map</span>": topo
     };
 
+    console.log(plates);
+    console.log(eqs);
+
     // Overlays
     var overlayMaps = {
-        "Earthquakes": eqs
+        "Earthquakes": eqs,
+        //"Tectonic Plates": plates
     };
 
     // Map object
@@ -108,12 +112,18 @@ function createMarkers(response) {
 
     // Create map with geoJSON layer
     createMap(gJsonLayer);
-
 };
 
 // URL to get Earthquake data from USGS.gov site
 // Getting info on earthquakes 4.5 and above from the last month
-var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson';
+var quakeUrl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson';
+var plateUrl = 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json'
 
-// Data Promise to get JSON from url, then call createMarkers function
-d3.json(url).then(createMarkers);
+// Data Promise to get JSON from quakeUrl, then call createMarkers function
+//d3.json(quakeUrl).then(createMarkers);
+
+Promise.all([d3.json(quakeUrl), d3.json(plateUrl)]).then(function([a, b]){
+    console.log(a);
+    console.log(b);
+    createMarkers(a, b);
+});
