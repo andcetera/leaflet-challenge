@@ -53,9 +53,9 @@ function createMap(eqs, plates) {
             div.innerHTML +=
                 '<i style="background:' + getColor(levels[i] + 1) + '"></i> ' +
                 levels[i] + (levels[i + 1] ? '&ndash;' + levels[i + 1] + '<br>' : '+');
-        }
+        };
         return div;
-    }
+    };
 
     // Add the legend to the map
     legend.addTo(myMap);
@@ -75,7 +75,7 @@ function getColor(depth){
         return '#a1dab4'
     } else {
         return '#ffffcc'
-    }
+    };
 };
 
 // Define function to create markers based on JSON response objects
@@ -109,7 +109,16 @@ function createMarkers(response1, response2) {
         pointToLayer: ptToLayer
     });
 
-    var gJsonLayer2 = L.geoJSON(response2.features);
+    function lineStyle(feature){
+        return {
+            color: 'teal',
+            weight: 2
+        };
+    };
+
+    var gJsonLayer2 = L.geoJSON(response2.features, {
+        style: lineStyle
+    });
 
     // Create map with geoJSON layer
     createMap(gJsonLayer, gJsonLayer2);
@@ -118,7 +127,7 @@ function createMarkers(response1, response2) {
 // URL to get Earthquake data from USGS.gov site
 // Getting info on earthquakes 4.5 and above from the last month
 var quakeUrl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson';
-var plateUrl = 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json'
+var plateUrl = 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json';
 
 // Data Promise to get JSON from quakeUrl, then call createMarkers function
 //d3.json(quakeUrl).then(createMarkers);
