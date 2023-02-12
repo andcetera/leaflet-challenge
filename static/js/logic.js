@@ -15,16 +15,21 @@ function createMap(eqs, plates) {
         attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>)'
     })
 
+    var sat = L.tileLayer('https://core-sat.maps.yandex.net/tiles?l=sat&x={x}&y={y}&z={z}&scale=1&lang=ru_RU', {
+        attribution: '<a http="https://yandex.ru" target="_blank">Yandex</a>'
+      });
+
     // Map layers
     var baseMaps = {
         "<span style='color: limegreen'>Street Map</span>": base,
         "<span style='color: lightseagreen'>Topographical Map</span>": topo,
-        "<span style='color: dodgerblue'>Watercolor Map</span>": watercolor
+        "<span style='color: dodgerblue'>Watercolor Map</span>": watercolor,
+        "<span style='color: royalblue'>Satalite Map</span>": sat
     };    
 
     // Overlays
     var overlayMaps = {
-        "<span style='color: royalblue'>Tectonic Plates</span>": plates,
+        "<span style='color: blue'>Tectonic Plates</span>": plates,
         "<span style='color: navy'>Earthquakes Above 4.5<br>Magnitude in the Past 30 Days</span>": eqs
     };
 
@@ -52,14 +57,14 @@ function createMap(eqs, plates) {
             labels = [];
 
         // Add legend title
-        div.innerHTML += '<center><h2>Earthquake<br>Depth (km)</h2><hr></center>'
+        div.innerHTML += '<center><h2>Earthquake<br>Depth</h2><hr></center>'
         
         // Add a new colored entry to the legend for each item
         // in the 'levels' array & return the div when complete
         for (var i = 0; i < levels.length; i++) {
             div.innerHTML +=
                 '<i style="background:' + getColor(levels[i] + 1) + '"></i> ' +
-                levels[i] + (levels[i + 1] ? '&ndash;' + levels[i + 1] + '<br>' : '+');
+                levels[i] + (levels[i + 1] ? '&ndash;' + levels[i + 1] + ' km<br>' : ' km +');
         };
         return div;
     };
@@ -73,15 +78,15 @@ function getColor(depth){
     
     // Deeper depths get darker colors
     if (depth > 500){
-        return '#253494';
+        return '#bd0026';
     } else if (depth > 200){
-        return '#2c7fb8'
+        return '#f03b20'
     } else if(depth > 100) {
-        return '#41b6c4'
+        return '#fd8d3c'
     } else if (depth > 50) {
-        return '#a1dab4'
+        return '#fecc5c'
     } else {
-        return '#ffffcc'
+        return '#ffffb2'
     };
 };
 
@@ -94,7 +99,7 @@ function createMarkers(response1, response2) {
             color: 'black',
             weight: 1,
             fillColor: getColor(feature.geometry.coordinates[2]),
-            fillOpacity: 0.6,
+            fillOpacity: 0.7,
             radius: feature.properties.mag ** 1.5
         });
     };
@@ -117,7 +122,7 @@ function createMarkers(response1, response2) {
     // Create geoJSON layer for tectonic plates
     var gJsonLayer2 = L.geoJSON(response2.features, {
         style: {
-            color: 'teal',
+            color: 'dodgerblue',
             weight: 2
         }
     });
