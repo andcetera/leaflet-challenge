@@ -17,26 +17,28 @@ function createMap(eqs, plates) {
 
     // Map layers
     var baseMaps = {
-        "Base Map": base,
-        "<span style='color: seagreen'>Topographical Map</span>": topo,
-        "<span style='color: darkturquoise'>Watercolor</span>": watercolor
+        "<span style='color: limegreen'>Street Map</span>": base,
+        "<span style='color: lightseagreen'>Topographical Map</span>": topo,
+        "<span style='color: dodgerblue'>Watercolor Map</span>": watercolor
     };    
 
     // Overlays
     var overlayMaps = {
-        "Earthquakes": eqs,
-        "Tectonic Plates": plates
+        "<span style='color: royalblue'>Tectonic Plates</span>": plates,
+        "<span style='color: navy'>Earthquakes Above 4.5<br>Magnitude in the Past 30 Days</span>": eqs
     };
 
     // Map object
     var myMap = L.map("map", {
         center: [0, 30],
         zoom: 3,
-        layers: [base, plates, eqs]
+        layers: [base, eqs]
     });
 
     // Control panel
-    L.control.layers(baseMaps, overlayMaps).addTo(myMap);
+    L.control.layers(baseMaps, overlayMaps, {
+        collapsed: false
+    }).addTo(myMap);
 
     // Create legend object
     var legend = L.control({position: 'bottomright'});
