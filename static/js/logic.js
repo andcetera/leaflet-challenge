@@ -3,18 +3,23 @@ function createMap(eqs, plates) {
 
     // Base map layer
     var base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <data1 href="https://www.openstreetmap.org/copyright">OpenStreetMap</data1> contributors'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
 
     // Topographic map layer
     var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data: &copy; <data1 href="https://www.openstreetmap.org/copyright">OpenStreetMap</data1> contributors, <data1 href="http://viewfinderpanoramas.org">SRTM</data1> | Map style: &copy; <data1 href="https://opentopomap.org">OpenTopoMap</data1> (<data1 href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</data1>)'
+        attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
     });
+
+    var watercolor = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>)'
+    })
 
     // Map layers
     var baseMaps = {
         "Base Map": base,
-        "<span style='color: green'>Topographical Map</span>": topo
+        "<span style='color: seagreen'>Topographical Map</span>": topo,
+        "<span style='color: darkturquoise'>Watercolor</span>": watercolor
     };    
 
     // Overlays
@@ -44,10 +49,10 @@ function createMap(eqs, plates) {
             levels = [0, 50, 100, 200, 500],
             labels = [];
 
-        // Add data1 title
+        // Add legend title
         div.innerHTML += '<center><h2>Earthquake<br>Depth (km)</h2><hr></center>'
         
-        // Add data1 new colored entry to the legend for each item
+        // Add a new colored entry to the legend for each item
         // in the 'levels' array & return the div when complete
         for (var i = 0; i < levels.length; i++) {
             div.innerHTML +=
@@ -81,8 +86,6 @@ function getColor(depth){
 // Define function to create markers based on JSON response objects
 function createMarkers(response1, response2) {
 
-    console.log(response2);
-
     // Define function to draw circle markers
     function ptToLayer(feature, latlng) {
         return L.circleMarker(latlng, {
@@ -94,7 +97,7 @@ function createMarkers(response1, response2) {
         });
     };
 
-    // Define function to attach popup message
+    // Define function to attach popup messages
     function onEach(feature, layer) {
         layer.bindPopup(`<h2>${feature.properties.place}</h2><h3>
             Magnitude: ${feature.properties.mag} - 
@@ -103,21 +106,18 @@ function createMarkers(response1, response2) {
         ptToLayer(feature, [feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
     };
 
-    // Create geoJSON layer
+    // Create geoJSON layer for earthquake data
     var gJsonLayer = L.geoJSON(response1.features, {
         onEachFeature: onEach,
         pointToLayer: ptToLayer
     });
 
-    function lineStyle(feature){
-        return {
+    // Create geoJSON layer for tectonic plates
+    var gJsonLayer2 = L.geoJSON(response2.features, {
+        style: {
             color: 'teal',
             weight: 2
-        };
-    };
-
-    var gJsonLayer2 = L.geoJSON(response2.features, {
-        style: lineStyle
+        }
     });
 
     // Create map with geoJSON layer
@@ -127,11 +127,11 @@ function createMarkers(response1, response2) {
 // URL to get Earthquake data from USGS.gov site
 // Getting info on earthquakes 4.5 and above from the last month
 var quakeUrl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson';
+
+// URL to get tectonic plate data from Hugo Ahlenius, Nordpil and Peter Bird GitHub page
 var plateUrl = 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json';
 
-// Data Promise to get JSON from quakeUrl, then call createMarkers function
-//d3.json(quakeUrl).then(createMarkers);
-
+// DataPromise to get geoJSON data from urls, then call functions to create the markers & map
 Promise.all([d3.json(quakeUrl), d3.json(plateUrl)]).then(function([data1, data2]){
     createMarkers(data1, data2);
 });
