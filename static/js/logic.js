@@ -11,26 +11,28 @@ function createMap(eqs, plates) {
         attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
     });
 
+    // Watercolor map layer
     var watercolor = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
         attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>)'
     })
 
+    // Satalite map layer
     var sat = L.tileLayer('https://core-sat.maps.yandex.net/tiles?l=sat&x={x}&y={y}&z={z}&scale=1&lang=ru_RU', {
         attribution: '<a http="https://yandex.ru" target="_blank">Yandex</a>'
       });
 
     // Map layers
     var baseMaps = {
-        "<span style='color: limegreen'>Street Map</span>": base,
-        "<span style='color: lightseagreen'>Topographical Map</span>": topo,
-        "<span style='color: dodgerblue'>Watercolor Map</span>": watercolor,
-        "<span style='color: royalblue'>Satalite Map</span>": sat
+        "<span style='color: olive'>Street Map</span>": base,
+        "<span style='color: olive'>Topographical Map</span>": topo,
+        "<span style='color: olive'>Watercolor Map</span>": watercolor,
+        "<span style='color: olive'>Satalite Map</span>": sat
     };    
 
     // Overlays
     var overlayMaps = {
-        "<span style='color: blue'>Tectonic Plates</span>": plates,
-        "<span style='color: navy'>Earthquakes Above 4.5<br>Magnitude in the Past 30 Days</span>": eqs
+        "<span style='color: olive'>Tectonic Plates</span>": plates,
+        "<span style='color: olive'>Earthquakes Above 4.5<br>Magnitude in the Past 30 Days</span>": eqs
     };
 
     // Map object
@@ -96,11 +98,11 @@ function createMarkers(response1, response2) {
     // Define function to draw circle markers
     function ptToLayer(feature, latlng) {
         return L.circleMarker(latlng, {
-            color: 'black',
+            color: 'olive',
             weight: 1,
             fillColor: getColor(feature.geometry.coordinates[2]),
             fillOpacity: 0.7,
-            radius: feature.properties.mag ** 1.5
+            radius: feature.properties.mag ** 1.5,
         });
     };
 
@@ -110,7 +112,14 @@ function createMarkers(response1, response2) {
             Magnitude: ${feature.properties.mag} - 
             Depth: ${feature.geometry.coordinates[2]}km</h3><hr>
             <p>${new Date(feature.properties.time)}</p>`);
-        ptToLayer(feature, [feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
+
+        // Open popups on mouse hover 
+        layer.on('mouseover', function(d){
+            this.openPopup();
+        });
+        layer.on('mouseout', function(e){
+            this.closePopup();
+        });
     };
 
     // Create geoJSON layer for earthquake data
