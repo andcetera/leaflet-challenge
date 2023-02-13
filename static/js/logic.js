@@ -147,7 +147,7 @@ function createMarkers(response1, response2) {
     var getInterval = function(quake) {
         return {
             start: quake.properties.time,
-            end: quake.properties.time + quake.properties.mag * 36_000_000,
+            end: quake.properties.time + quake.properties.mag * 20_000_000,
         };
     };
 
