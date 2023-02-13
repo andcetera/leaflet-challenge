@@ -1,5 +1,6 @@
+
 // Define function to create map layers and display them
-function createMap(eqs, plates, timeline, timecontrol) {
+function createMap(eqs, plates, timeline) {
 
     // Base map layer
     var base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -32,7 +33,7 @@ function createMap(eqs, plates, timeline, timecontrol) {
     // Overlays
     var overlayMaps = {
         "<span style='color: olive'>Tectonic Plates</span>": plates,
-        "<span style='color: olive'>Earthquakes</span>": eqs
+        "<span style='color: olive'>All Earthquakes</span>": eqs
     };
 
     // Map object
@@ -43,9 +44,20 @@ function createMap(eqs, plates, timeline, timecontrol) {
     });
 
     // Add layer control panel to map
-    L.control.layers(baseMaps, overlayMaps).addTo(myMap);
+    L.control.layers(baseMaps, overlayMaps, {
+        collapsed: false
+    }).addTo(myMap);
 
-    // Add timeline to map
+    // Create timeline control
+    var timecontrol = L.timelineSliderControl({
+        formatOutput: function(date) {
+            return '<span style="color: olive">' + new Date(date).toUTCString() + '</span>';
+        },
+        showTicks: false,
+        duration: 60_000
+    });
+
+    // Add timeline & player to map
     timecontrol.addTo(myMap);
     timecontrol.addTimelines(timeline);
     timeline.addTo(myMap);
@@ -53,10 +65,14 @@ function createMap(eqs, plates, timeline, timecontrol) {
     // Append title to top of timeline control
     var container = timecontrol.getContainer();
     const titleNode = document.createElement('h2');
-    const nodeText = document.createTextNode('Earthquakes Over 1.0 Magnitude in the Past 30 Days (uncheck Earthquake layer to view timeline)');
+    const nodeText = document.createTextNode('Earthquakes Over 1.0 Magnitude in the Past 30 Days');
     titleNode.appendChild(nodeText);
     container.insertBefore(titleNode, container.children[0]);
 
+    // Remove Earthquake layer when playing timeline
+    timeline.on('change', function(){
+        myMap.removeLayer(eqs);
+    });
 
     // Create legend object
     var legend = L.control({position: 'bottomright'});
@@ -84,6 +100,7 @@ function createMap(eqs, plates, timeline, timecontrol) {
 
     // Add the legend to the map
     legend.addTo(myMap);
+
 };
 
 // Define function to assign colors based on earthquake depth
@@ -116,7 +133,7 @@ function createMarkers(response1, response2) {
             color: 'olive',
             weight: 1,
             fillColor: getColor(feature.geometry.coordinates[2]),
-            fillOpacity: 0.7,
+            fillOpacity: 0.8,
             radius: feature.properties.mag ** 1.5,
         });
     };
@@ -152,20 +169,13 @@ function createMarkers(response1, response2) {
     });
 
     // Define function to convert magnitude to a time interval for quakes to display
+    // UNIX timestamp multiplier of 2 hours per 1.0 of magnitude
     var getInterval = function(quake) {
         return {
             start: quake.properties.time,
-            end: quake.properties.time + quake.properties.mag * 30_000_000,
+            end: quake.properties.time + quake.properties.mag * 7_200_000,
         };
     };
-
-    // Create timeline control
-    var timelineControl = L.timelineSliderControl({
-        formatOutput: function(date) {
-            return '<span style="color: olive">' + new Date(date).toUTCString() + '</span>';
-        },
-        showTicks: false
-    });
 
     // Create timeline object
     var timeline = L.timeline(response1, {
@@ -174,8 +184,8 @@ function createMarkers(response1, response2) {
         pointToLayer: ptToLayer
     });
 
-    // Create map with geoJSON layers & timeline objects
-    createMap(gJsonLayer, gJsonLayer2, timeline, timelineControl);
+    // Create map with geoJSON layers & timeline object
+    createMap(gJsonLayer, gJsonLayer2, timeline);
 };
 
 

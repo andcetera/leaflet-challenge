@@ -5,7 +5,6 @@ Visualizing US Geological Survey data to better educate the public and other gov
 - - -
 ## Project Structure
 ### Completed Map Dashboard can be found [HERE](https://andcetera.github.io/leaflet-challenge/)
-- Please note: when using the timeline player feature, you will need to uncheck the Earthquake layer in order to see each individual earthquake display over time.
 ### Files:
 - [logic.js](static/js/logic.js) - The main Javascript code for this project is housed in the [static/js](static/js/) path along with the leaflet.timeline file required for the animations
 - [index.html](index.html) can be found at the root, and [style.css](static/css/style.css) can be found in the static/css path for reference
