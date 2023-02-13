@@ -18,7 +18,7 @@ function createMap(eqs, plates) {
 
     // Satalite map layer
     var sat = L.tileLayer('https://core-sat.maps.yandex.net/tiles?l=sat&x={x}&y={y}&z={z}&scale=1&lang=ru_RU', {
-        attribution: '<a http="https://yandex.ru" target="_blank">Yandex</a>'
+        attribution: '<a href="https://yandex.ru" target="_blank">Yandex</a>'
       });
 
     // Map layers
@@ -136,9 +136,67 @@ function createMarkers(response1, response2) {
         }
     });
 
+
+
+
+    var getInterval = function(quake) {
+        return {
+            start: quake.properties.time,
+            end: quake.properties.time + quake.properties.mag * 1800000,
+        };
+    };
+
+    var timelineControl = L.timelineSliderControl({
+        formatOutput: function(date) {
+            return new Date(date).toString();
+        },
+    });
+
+    var timeline = L.timeline(response1, {
+        getInterval: getInterval,
+        onEachFeature: onEach,
+        pointToLayer: ptToLayer
+    });
+
+
+
+
+    
+
     // Create map with geoJSON layer
     createMap(gJsonLayer, gJsonLayer2);
 };
+
+
+
+function eqfeed_callback(data) {
+
+    var getInterval = function(quake) {
+        return {
+            start: quake.properties.time,
+            end: quake.properties.time + quake.properties.mag * 1800000,
+        };
+    };
+
+    var timelineControl = L.timelineSliderControl({
+        formatOutput: function(date) {
+            return new Date(date).toString();
+        },
+    });
+
+    var timeline = L.timeline(response1, {
+        getInterval: getInterval,
+        onEachFeature: onEach,
+        pointToLayer: ptToLayer
+    });
+
+    timelineControl.addTo(map);
+    timelineControl.addTimelines(timeline);
+    timeline.addTo(map);
+
+}
+
+
 
 // URL to get Earthquake data from USGS.gov site
 // Getting info on earthquakes 4.5 and above from the last month
