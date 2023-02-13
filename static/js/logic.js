@@ -1,5 +1,5 @@
 // Define function to create map layers and display them
-function createMap(eqs, plates) {
+function createMap(eqs, plates, t, tc) {
 
     // Base map layer
     var base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -46,6 +46,10 @@ function createMap(eqs, plates) {
     L.control.layers(baseMaps, overlayMaps, {
         collapsed: false
     }).addTo(myMap);
+
+    tc.addTo(myMap);
+    tc.addTimelines(t);
+    t.addTo(myMap);
 
     // Create legend object
     var legend = L.control({position: 'bottomright'});
@@ -161,10 +165,10 @@ function createMarkers(response1, response2) {
 
 
 
-    
+
 
     // Create map with geoJSON layer
-    createMap(gJsonLayer, gJsonLayer2);
+    createMap(gJsonLayer, gJsonLayer2, timeline, timelineControl);
 };
 
 
