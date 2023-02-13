@@ -1,5 +1,5 @@
 // Define function to create map layers and display them
-function createMap(eqs, plates, t, tc) {
+function createMap(eqs, plates, timeline, timecontrol) {
 
     // Base map layer
     var base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -32,27 +32,31 @@ function createMap(eqs, plates, t, tc) {
     // Overlays
     var overlayMaps = {
         "<span style='color: olive'>Tectonic Plates</span>": plates,
-        "<span style='color: olive'>Earthquakes Above 4.5<br>Magnitude in the Past 30 Days</span>": eqs
+        "<span style='color: olive'>Earthquakes</span>": eqs
     };
 
     // Map object
     var myMap = L.map("map", {
-        center: [0, 30],
+        center: [0, 12],
         zoom: 3,
         layers: [base, eqs]
     });
 
-    // Control panel
-    L.control.layers(baseMaps, overlayMaps, {
-        collapsed: false
-    }).addTo(myMap);
+    // Add layer control panel to map
+    L.control.layers(baseMaps, overlayMaps).addTo(myMap);
 
-    tc.addTo(myMap);
-    tc.addTimelines(t);
-    t.addTo(myMap);
+    // Add timeline to map
+    timecontrol.addTo(myMap);
+    timecontrol.addTimelines(timeline);
+    timeline.addTo(myMap);
+    
+    // Append title to top of timeline control
+    var container = timecontrol.getContainer();
+    const titleNode = document.createElement('h2');
+    const nodeText = document.createTextNode('Earthquakes Over 1.0 Magnitude in the Past 30 Days (uncheck Earthquake layer to view timeline)');
+    titleNode.appendChild(nodeText);
+    container.insertBefore(titleNode, container.children[0]);
 
-    container = tc.getContainer();
-    console.log(container);
 
     // Create legend object
     var legend = L.control({position: 'bottomright'});
@@ -62,7 +66,7 @@ function createMap(eqs, plates, t, tc) {
 
         // Create the legend div
         var div = L.DomUtil.create('div', 'info legend'),
-            levels = [0, 50, 100, 200, 500],
+            levels = [0, 10, 30, 50, 100, 200, 500],
             labels = [];
 
         // Add legend title
@@ -87,13 +91,17 @@ function getColor(depth){
     
     // Deeper depths get darker colors
     if (depth > 500){
-        return '#bd0026';
+        return '#b10026'
     } else if (depth > 200){
-        return '#f03b20'
-    } else if(depth > 100) {
+        return '#e31a1c';
+    } else if (depth > 100){
+        return '#fc4e2a'
+    } else if(depth > 50) {
         return '#fd8d3c'
-    } else if (depth > 50) {
-        return '#fecc5c'
+    } else if (depth > 30) {
+        return '#feb24c'
+    } else if (depth > 10) {
+        return '#fed976'
     } else {
         return '#ffffb2'
     };
@@ -147,11 +155,11 @@ function createMarkers(response1, response2) {
     var getInterval = function(quake) {
         return {
             start: quake.properties.time,
-            end: quake.properties.time + quake.properties.mag * 20_000_000,
+            end: quake.properties.time + quake.properties.mag * 30_000_000,
         };
     };
 
-    // Timeline control
+    // Create timeline control
     var timelineControl = L.timelineSliderControl({
         formatOutput: function(date) {
             return '<span style="color: olive">' + new Date(date).toUTCString() + '</span>';
@@ -172,8 +180,8 @@ function createMarkers(response1, response2) {
 
 
 // URL to get Earthquake data from USGS.gov site
-// Getting info on earthquakes 4.5 and above from the last month
-var quakeUrl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson';
+// Getting info on earthquakes 1.0 and above from the last month
+var quakeUrl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_month.geojson';
 
 // URL to get tectonic plate data from Hugo Ahlenius, Nordpil and Peter Bird GitHub page
 var plateUrl = 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json';

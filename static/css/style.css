@@ -30,7 +30,16 @@ html {
 }
 
 .leaflet-timeline-control {
-  width: 800px !important;
+  width: 900px !important;
+}
+h3 {
+  color: olive;
+}
+h2 {
+  color: olive;
+}
+p {
+  color: olive;
 }
 
 .play {
