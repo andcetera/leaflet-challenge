@@ -51,6 +51,9 @@ function createMap(eqs, plates, t, tc) {
     tc.addTimelines(t);
     t.addTo(myMap);
 
+    container = tc.getContainer();
+    console.log(container);
+
     // Create legend object
     var legend = L.control({position: 'bottomright'});
 
@@ -140,66 +143,32 @@ function createMarkers(response1, response2) {
         }
     });
 
-
-
-
+    // Define function to convert magnitude to a time interval for quakes to display
     var getInterval = function(quake) {
         return {
             start: quake.properties.time,
-            end: quake.properties.time + quake.properties.mag * 1800000,
+            end: quake.properties.time + quake.properties.mag * 36_000_000,
         };
     };
 
+    // Timeline control
     var timelineControl = L.timelineSliderControl({
         formatOutput: function(date) {
-            return new Date(date).toString();
+            return '<span style="color: olive">' + new Date(date).toUTCString() + '</span>';
         },
+        showTicks: false
     });
 
+    // Create timeline object
     var timeline = L.timeline(response1, {
         getInterval: getInterval,
         onEachFeature: onEach,
         pointToLayer: ptToLayer
     });
 
-
-
-
-
-
-    // Create map with geoJSON layer
+    // Create map with geoJSON layers & timeline objects
     createMap(gJsonLayer, gJsonLayer2, timeline, timelineControl);
 };
-
-
-
-function eqfeed_callback(data) {
-
-    var getInterval = function(quake) {
-        return {
-            start: quake.properties.time,
-            end: quake.properties.time + quake.properties.mag * 1800000,
-        };
-    };
-
-    var timelineControl = L.timelineSliderControl({
-        formatOutput: function(date) {
-            return new Date(date).toString();
-        },
-    });
-
-    var timeline = L.timeline(response1, {
-        getInterval: getInterval,
-        onEachFeature: onEach,
-        pointToLayer: ptToLayer
-    });
-
-    timelineControl.addTo(map);
-    timelineControl.addTimelines(timeline);
-    timeline.addTo(map);
-
-}
-
 
 
 // URL to get Earthquake data from USGS.gov site
